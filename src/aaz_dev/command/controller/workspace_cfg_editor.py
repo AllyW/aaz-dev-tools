@@ -58,7 +58,7 @@ class WorkspaceCfgEditor(CfgReader, ArgumentUpdateMixin):
         cfg.resources = resources
         cfg.command_groups = command_groups
         cfg_editor = cls(cfg)
-        cfg_editor.reformat()
+        cfg_editor.reformat()  # CMDConfiguration reformat
         return cfg_editor
 
     def __init__(self, cfg, deleted=False):

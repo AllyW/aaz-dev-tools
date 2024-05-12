@@ -17,6 +17,7 @@ class SwaggerLoader:
 
     def load_file(self, file_path):
         from swagger.model.schema.swagger import Swagger
+        print("file path in swagger_loader.py load_file: ", file_path)
         loaded = self.get_loaded(file_path)
         if loaded is not None:
             return loaded
@@ -75,6 +76,8 @@ class SwaggerLoader:
         return self._loaded.get(traces, None)
 
     def _cache_loaded(self, loaded, *traces):
+        # loaded: Swagger
+        # traces: json file path
         self._loaded[traces] = loaded
 
     def load_ref(self, ref_link, *ref_traces):

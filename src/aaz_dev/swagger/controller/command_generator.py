@@ -154,6 +154,10 @@ class CommandGenerator:
         return resource.version
 
     def generate_command(self, path_item, resource, instance_var, cmd_builder):
+        # path_item: swagger spec resource path item
+        # resource: swagger spec resource
+        # instance_var: "$Instance"
+        # cmd_builder: swagger.model.schema.cmd_builder
         command = CMDCommand()
         command.version = self.generate_command_version(resource)
         command.resources = [
@@ -171,7 +175,7 @@ class CommandGenerator:
         command.description = op.description
         command.operations = [op]
 
-        command.generate_args()
+        command.generate_args() # parse swagger resource arg into cmd args here
         command.generate_outputs(pageable=cmd_builder.get_pageable(path_item, op))
 
         output = command.outputs[0] if command.outputs else None

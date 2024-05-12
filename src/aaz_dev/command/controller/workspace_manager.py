@@ -35,6 +35,7 @@ class WorkspaceManager:
         for name in os.listdir(Config.AAZ_DEV_WORKSPACE_FOLDER):
             if not os.path.isdir(os.path.join(Config.AAZ_DEV_WORKSPACE_FOLDER, name)):
                 continue
+            print("list_workspaces name: ", name)
             manager = cls(name)
             if os.path.exists(manager.path) and os.path.isfile(manager.path):
                 workspaces.append({
@@ -73,6 +74,7 @@ class WorkspaceManager:
                 raise ValueError(
                     f"Invalid AAZ_DEV_WORKSPACE_FOLDER: Expect a folder path: {Config.AAZ_DEV_WORKSPACE_FOLDER}")
             self.folder = os.path.join(Config.AAZ_DEV_WORKSPACE_FOLDER, name)
+            print("self.folder from workspace manager: ", self.folder)
         else:
             self.folder = os.path.expanduser(
                 folder) if folder != self.IN_MEMORY else self.IN_MEMORY
@@ -80,6 +82,7 @@ class WorkspaceManager:
             raise ValueError(
                 f"Invalid workspace folder: Expect a folder path: {self.folder}")
         self.path = os.path.join(self.folder, 'ws.json')
+        print("self.path from workspace manager: ", self.path)
 
         self.ws = None
         self._cfg_editors = {}
@@ -615,6 +618,7 @@ class WorkspaceManager:
             used_resource_ids.update(r['id'])
 
         # load swagger resources
+        # swagger.model.spec._resource.Resource  load model.schema.swagger.Swagger, 以及 内部的各种type.json 等 swagger 定义，并link
         self.swagger_command_generator.load_resources(swagger_resources)
 
         # generate cfg editors by resource
