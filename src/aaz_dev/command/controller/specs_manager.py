@@ -203,7 +203,16 @@ class AAZSpecsManager:
 
         with open(json_path, 'r', encoding="utf-8") as f:
             #print(json_path)
+            print("-----------------------------------------")
+            print("file: ", "/".join(__file__.split("/")[-6:]), ", func: load_resource_cfg_reader, from class: ",
+                  self.__class__.__name__,
+                  ", resource_id: ", resource_id,
+                  ", version", version,
+                  ", json_path: ", json_path)
+
+            print("-----------------------------------------")
             data = json.load(f)
+
         cfg = CMDConfiguration(data)
 
         return CfgReader(cfg)
@@ -552,6 +561,10 @@ class AAZSpecsManager:
 
         # cfg files
         for (plane, resource_id, version), cfg in self._modified_resource_cfgs.items():
+            # cfg: CMDConfiguration instance
+            # json_file_path: '/Users/allywang/workspace_abc/aaz/Resources/mgmt-plane/L3N1YnNjcmlwdGlvbnMve30vcHJvdmlkZXJzL21pY3Jvc29mdC5jb21tdW5pdHkvY29tbXVuaXR5dHJhaW5pbmdz/2023-11-01.json'
+            # xml_file_path: '/Users/allywang/workspace_abc/aaz/Resources/mgmt-plane/L3N1YnNjcmlwdGlvbnMve30vcHJvdmlkZXJzL21pY3Jvc29mdC5jb21tdW5pdHkvY29tbXVuaXR5dHJhaW5pbmdz/2023-11-01.xml'
+            # ref_file_path: '/Users/allywang/workspace_abc/aaz/Resources/mgmt-plane/L3N1YnNjcmlwdGlvbnMve30vcHJvdmlkZXJzL21pY3Jvc29mdC5jb21tdW5pdHkvY29tbXVuaXR5dHJhaW5pbmdz/2023-11-01.md'
             json_file_path, xml_file_path = self.get_resource_cfg_file_paths(plane, resource_id, version)
             ref_file_path = self.get_resource_cfg_ref_file_path(plane, resource_id, version)
             if not cfg:

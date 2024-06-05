@@ -14,10 +14,16 @@ class SwaggerLoader:
         self._loaded = {}
         self.loaded_swaggers = OrderedDict()
         self._linked_idx = 0
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: init, from class: ", self.__class__.__name__)
+
+
 
     def load_file(self, file_path):
         from swagger.model.schema.swagger import Swagger
+        print("-----------------------------------------")
         print("file path in swagger_loader.py load_file: ", file_path)
+
         loaded = self.get_loaded(file_path)
         if loaded is not None:
             return loaded
@@ -117,6 +123,10 @@ class SwaggerLoader:
 
     @classmethod
     def _parse_ref_link(cls, ref_traces, ref_link):
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: _parse_ref_link, from class: SwaggerLoader, ref_traces", ref_traces, ", ref_link:", ref_link)
+        print("-----------------------------------------")
+
         file_path = ref_traces[0]
 
         parts = ref_link.strip().split('#')

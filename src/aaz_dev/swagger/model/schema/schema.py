@@ -73,6 +73,9 @@ class ReferenceSchema(Model, Linkable):
     x_ms_client_flatten = XmsClientFlattenField()
 
     def __init__(self, *args, **kwargs):
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: init, from class: ", self.__class__.__name__, ", args: ", args, ", kwargs:", kwargs)
+        print("-----------------------------------------")
         super().__init__(*args, **kwargs)
         self.ref_instance = None
         self.x_ms_azure_resource = False
@@ -96,6 +99,10 @@ class ReferenceSchema(Model, Linkable):
 
     def to_cmd(self, builder, support_cls_schema=False, **kwargs):
         model = builder.register_cls_definition(self, support_cls_schema=support_cls_schema, **kwargs)
+        # file:  src/aaz_dev/swagger/model/schema/schema.py , func: to_cmd, build class:  CMDBuilder  from class:  ReferenceSchema , kwargs:  {}
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: to_cmd, build class: ", builder.__class__.__name__, " from class: ", self.__class__.__name__, ", kwargs: ", kwargs)
+        print("-----------------------------------------")
         if isinstance(model, CMDSchema):
             builder.setup_description(model, self)
             if self.x_ms_client_flatten:
@@ -264,11 +271,13 @@ class Schema(Model, Linkable):
     _x_typespec_name = XTypespecNameField()  # Typespec field name
 
     def __init__(self, *args, **kwargs):
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: init, from class: ", self.__class__.__name__, ", args: ", args, ", kwargs:", kwargs)
+        print("-----------------------------------------")
         super().__init__(*args, **kwargs)
         self.ref_instance = None
         self.disc_parent = None
         self.disc_children = {}
-
         self.resource_id_templates = set()  # valid when there's only one template
 
     def get_disc_parent(self):
@@ -605,6 +614,10 @@ class Schema(Model, Linkable):
                         key=self.traces, value=None
                     )
                 model = builder(self.all_of[0], support_cls_schema=True)
+        # file:  src/aaz_dev/swagger/model/schema/schema.py , func: to_cmd, build class:  CMDBuilder  from class:  Schema , kwargs:  {'support_cls_schema': True}
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: to_cmd, build class: ", builder.__class__.__name__, " from class: ", self.__class__.__name__, ", kwargs: ", kwargs)
+        print("-----------------------------------------")
 
         builder.setup_fmt(model, self)
         builder.setup_enum(model, self)

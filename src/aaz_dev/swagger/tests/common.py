@@ -9,7 +9,7 @@ class SwaggerSpecsTestCase(ApiTestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        folder_path = os.environ.get("AAZ_SWAGGER_PATH", None)
+        folder_path = os.environ.get("AAZ_SWAGGER_PATH", "/Users/allywang/workspace_abc/azure-rest-api-specs")
         if not folder_path or not os.path.isdir(folder_path):
             raise ValueError("Invalid swagger folder path, Please setup it in environment value 'AAZ_SWAGGER_PATH'.")
         self.specs = SwaggerSpecs(folder_path=folder_path)

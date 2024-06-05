@@ -26,6 +26,8 @@ class WorkspaceCfgEditor(CfgReader, ArgumentUpdateMixin):
             else:
                 path = os.path.join(path, name)
                 name = ""
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: get_cfg_folder, from class: WorkspaceCfgEditor, path: ", path)
         return path
 
     @classmethod

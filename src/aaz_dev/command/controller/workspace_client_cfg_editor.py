@@ -23,7 +23,7 @@ class WorkspaceClientCfgEditor(ClientCfgReader, ArgumentUpdateMixin):
     def load_client_cfg(cls, ws_folder):
         path = cls.get_cfg_path(ws_folder)
         if not os.path.exists(path):
-            return None
+            return None   # 通常为空
         with open(path, 'r') as f:
             data = json.load(f)
         cfg = CMDClientConfig(data)

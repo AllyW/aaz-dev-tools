@@ -81,6 +81,10 @@ class Items(Model):
         builder.setup_fmt(model, self)
         builder.setup_enum(model, self)
         builder.setup_default(model, self)
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: to_cmd, build class: ", builder.__class__.__name__, " from class: ", self.__class__.__name__, ", kwargs: ", kwargs)
+        print("-----------------------------------------")
+
         if isinstance(model, CMDArraySchemaBase):
             if self.items:
                 assert isinstance(self.items, Items)

@@ -55,7 +55,11 @@ class Swagger(Model, Linkable):
     x_ms_parameterized_host = XmsParameterizedHostField()
 
     def __init__(self, *args, **kwargs):
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: init, from class: ", self.__class__.__name__, ", args: ", args, ", kwargs:", kwargs)
+        print("-----------------------------------------")
         super().__init__(*args, **kwargs)
+
 
     def link(self, swagger_loader, *traces):
         if self.is_linked():

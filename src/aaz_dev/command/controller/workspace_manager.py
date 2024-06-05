@@ -43,6 +43,7 @@ class WorkspaceManager:
                     "folder": manager.folder,
                     "updated": os.path.getmtime(manager.path)
                 })
+        workspaces.sort(key=lambda x: x["name"])
         return workspaces
 
     @classmethod

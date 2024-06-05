@@ -23,9 +23,13 @@ class CommandGenerator:
     _inflect_engine = inflect.engine()
 
     def __init__(self):
+        print("-----------------------------------------")
+
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: init, from class: ", self.__class__.__name__)
         self.loader = SwaggerLoader()
 
     def load_resources(self, resources):
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: load_resources, from class: ", self.__class__.__name__)
         for resource in resources:
             self.loader.load_file(resource.file_path)
         self.loader.link_swaggers()
@@ -35,6 +39,7 @@ class CommandGenerator:
                                    update_by=None,
                                    methods=('get', 'delete', 'put', 'post', 'head', 'patch'),
                                    **kwargs):
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: create_draft_command_group, from class: ", self.__class__.__name__)
         swagger = self.loader.get_loaded(resource.file_path)
         assert swagger is not None
         path_item = swagger.paths.get(resource.path, None)
@@ -158,6 +163,8 @@ class CommandGenerator:
         # resource: swagger spec resource
         # instance_var: "$Instance"
         # cmd_builder: swagger.model.schema.cmd_builder
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: generate_command, from class: ", self.__class__.__name__)
+
         command = CMDCommand()
         command.version = self.generate_command_version(resource)
         command.resources = [
