@@ -2,6 +2,14 @@
 
 Release History
 ===============
+2.8.0
+++++++
+* Support enum extension (#366)
+* Escape backslashes in docstrings (#360)
+* Escape backslash using constant-convert (#365)
+* Support keywords as arg name (#362)
+* Handle keyword in response
+* Conduct code doc (#364)
 
 2.7.0
 ++++++
