@@ -169,6 +169,41 @@ Translators will automatically merge them into one `list` commands if their resp
 
 The `POST` method is special. If a resource has `POST` method only and the last segment of valid part is not a parameter segment, that segment will be used as operation name, else a temporary name will be generated, which can be renamed in editor later.
 
+## TypeSpec API Translator - `typespec-aaz`
+
+`typespec-aaz`  translates an interface under a specific namespace from typespec specification into a resource url aligned with swagger api, with defined data models translated into the input and output parameters.
+
+| Namespace | Interface | resource url |
+| ---- | ---- | ---- |
+| Microsoft.Community | CommunityTrainings | /subscriptions/{subscriptionId}/providers/**microsoft.community/communitytrainings** |
+
+The data models defined in typespec will be translated into aaz models. For example,
+
+The model value defined as below
+```typespec
+  @doc("The name of the Community Training Resource")
+  @pattern("^[a-zA-Z0-9-]{3,24}$")
+  @key("communityTrainingName")
+  @segment("communityTrainings")
+  @path
+  name: string;
+```
+would be tranlsated into a parameter object below:
+
+```json
+{
+  description: "The name of the Community Training Resource",
+  format: {pattern: "^[a-zA-Z0-9-]{3,24}$"},
+  pattern: "^[a-zA-Z0-9-]{3,24}$",
+  name: "communityTrainingName",
+  required: true,
+  type: "string"
+}
+```
+
+`typespec-aaz` translates the typespec api into aaz models and then the following steps keep the same as swagger specifications.
+
+
 ## Workspace
 
 Before developers finish customizing the command models and export them in AAZ repo for persistence, the draft is saved in a workspace.
