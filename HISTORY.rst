@@ -2,6 +2,10 @@
 
 Release History
 ===============
+2.11.0
+++++++
+* Add support to TypeSpec specification
+
 2.10.1
 ++++++
 * Fix swagger additional property patch (#397)
