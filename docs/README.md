@@ -37,13 +37,17 @@ There are two repos to maintain Azure CLI commands：
 - [Azure CLI](https://github.com/Azure/azure-cli)
 - [Azure CLI Extension](https://github.com/Azure/azure-cli-extensions)
 
-### What is Swagger(OpenAPI Specification)?
+### What is REST API Specifications?
 
-Azure uses swagger to define REST API specifications. Most of swagger files are maintained in the following two repos:
+Azure uses swagger(OpenAPI) or TypeSpec to define REST API specifications. Most of files are maintained in the following two repos:
 - [azure-rest-api-specs](https://github.com/Azure/azure-rest-api-specs)
 - [azure-rest-api-specs-pr](https://github.com/Azure/azure-rest-api-specs-pr)
 
-So the definition of API in swagger is required before using AAZDev tool.
+Swagger Specification (or known as OpenAPI Specification) is an API description format for REST APIs. An OpenAPI file, can be written in YAML or json, allows developers to describe the entire API.
+
+TypeSpec (tsp) is a language for defining cloud service APIs and models. It is a highly extensible language with primitives that can describe APIs using REST, gRPC, and other protocols.
+
+The definition of API in swagger or TypeSpec is required before using AAZDev tool.
 
 ### What is Atomic CLI Command?
 
@@ -69,9 +73,9 @@ The SDK packages a batch of APIs, and when one API has new change and is release
 
 ![Architecture](assets/diagrams/out/archutecture/architecture.svg)
 
-AAZDev Tool consists of 4 parts:
+AAZDev Tool consists of 5 parts:
 - API Translators:
-  They are responsible for translating the API specification into a command model. We've implemented the swagger 2.0 translator which can support to translate the API specs in [azure-rest-api-specs](https://github.com/Azure/azure-rest-api-specs) repo and [azure-rest-api-specs-pr](https://github.com/Azure/azure-rest-api-specs-pr) repo.
+  They are responsible for translating the API specification into a command model. We've implemented both swagger 2.0 and Typespec translator which can support to translate the API specs in [azure-rest-api-specs](https://github.com/Azure/azure-rest-api-specs) repo and [azure-rest-api-specs-pr](https://github.com/Azure/azure-rest-api-specs-pr) repo.
 - Model Editors:
   They are used to edit command models. Currently, _Workspace Editor_ is implemented. More details are introduced in _Workspace_ paragraph.
 - Command Models:
