@@ -73,7 +73,7 @@ The SDK packages a batch of APIs, and when one API has new change and is release
 
 ![Architecture](assets/diagrams/out/archutecture/architecture.svg)
 
-AAZDev Tool consists of 5 parts:
+AAZDev Tool consists of 4 parts:
 - API Translators:
   They are responsible for translating the API specification into a command model. We've implemented both swagger 2.0 and Typespec translator which can support to translate the API specs in [azure-rest-api-specs](https://github.com/Azure/azure-rest-api-specs) repo and [azure-rest-api-specs-pr](https://github.com/Azure/azure-rest-api-specs-pr) repo.
 - Model Editors:
@@ -190,7 +190,7 @@ The model value defined as below
 ```
 would be tranlsated into a parameter object below:
 
-```json
+```
 {
   description: "The name of the Community Training Resource",
   format: {pattern: "^[a-zA-Z0-9-]{3,24}$"},
