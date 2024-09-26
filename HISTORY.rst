@@ -4,7 +4,7 @@ Release History
 ===============
 3.0.0
 ++++++
-* Add support to TypeSpec specification
+* Add support to TypeSpec specification (#399)
 
 2.10.1
 ++++++
