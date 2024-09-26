@@ -83,7 +83,6 @@ jobs:
         run: |
           pip install --upgrade pip setuptools wheel virtualenv
           npm install -g pnpm
-          pnpm install
 
       - name: Set build variables
         shell: bash
