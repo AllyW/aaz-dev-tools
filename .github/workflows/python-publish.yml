@@ -53,8 +53,12 @@ jobs:
               run: |
                 set -x
                 pip list
+                pip install twine
+                # pip install --upgrade setuptools wheel
                 python setup.py check
                 python setup.py bdist_wheel sdist
+                # check package metadata
+                twine check ./dist/*
 
 #          - python: '3.10'
 #            task:
