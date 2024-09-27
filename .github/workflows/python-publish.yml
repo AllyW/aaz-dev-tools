@@ -51,6 +51,8 @@ jobs:
             task:
               name: Build
               run: |
+                set -x
+                pip list
                 python setup.py check
                 python setup.py bdist_wheel sdist
 
