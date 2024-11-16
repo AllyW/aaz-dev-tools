@@ -16,6 +16,7 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
 
 export async function createBrowserHost(
   libsToLoad: readonly string[],
+  buildLibsToLoad: readonly string[],
   importOptions: LibraryImportOptions = {}
 ): Promise<BrowserHost> {
   const virtualFs = new Map<string, string>();
@@ -37,16 +38,39 @@ export async function createBrowserHost(
     for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.jsSourceFiles)) {
       addJsImport(resolveVirtualPath('node_modules', libName, key), value);
     }
-    virtualFs.set(
-      resolveVirtualPath('package.json'),
-      JSON.stringify({
-        name: "aaz-host",
-        dependencies: Object.fromEntries(
-          Object.values(libraries).map((x) => [x.name, x.packageJson.version])
-        ),
-      })
-    );
   }
+
+  for (const libName of buildLibsToLoad) {
+    const { _TypeSpecLibrary_, $lib, $linter } = (await importLibrary(libName, importOptions)) as any;
+    libraries[libName] = {
+      name: libName,
+      isEmitter: $lib?.emitter,
+      definition: $lib,
+      packageJson: JSON.parse(_TypeSpecLibrary_.typespecSourceFiles["package.json"]),
+      linter: $linter,
+    };
+
+    for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.typespecSourceFiles)) {
+      let fs_key = key;
+      if (key.includes("../../../../../../src/typespec")) {
+        fs_key = key.replace("../../../../../../src/typespec/", "../../");
+      }
+      virtualFs.set(resolveVirtualPath('node_modules', libName, fs_key), value);
+    }
+    for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.jsSourceFiles)) {
+      addJsImport(resolveVirtualPath('node_modules', libName, key), value);
+    }
+  }
+
+  virtualFs.set(
+    resolveVirtualPath('package.json'),
+    JSON.stringify({
+      name: "aaz-host",
+      dependencies: Object.fromEntries(
+        Object.values(libraries).map((x) => [x.name, x.packageJson.version])
+      ),
+    })
+  );
 
   function addJsImport(path: string, value: any) {
     virtualFs.set(path, "");

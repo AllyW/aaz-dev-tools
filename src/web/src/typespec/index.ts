@@ -16,12 +16,17 @@ const libs = [
   "@azure-tools/typespec-client-generator-core",
   "@azure-tools/typespec-azure-resource-manager",
   "@azure-tools/typespec-aaz",
+  "@azure-tools/typespec-liftr-base",
+]
+
+const buildLibs = [
+  "@azure-tools/typespec-liftr-base",
 ]
 
 const outputDir = "tsp-output";
 
 export async function getTypespecRPResources(resourceProviderUrl: string) {
-  const host = await createBrowserHost(libs, { useShim: true })
+  const host = await createBrowserHost(libs, buildLibs, { useShim: true })
   const res = await axios.get(resourceProviderUrl);
   const entryFiles = res.data.entryFiles;
   let results: any[] = [];
@@ -67,7 +72,7 @@ async function findOutputFiles(host: BrowserHost): Promise<string[]> {
 }
 
 export async function getTypespecRPResourcesOperations(obj: any) {
-  const host = await createBrowserHost(libs, { useShim: true })
+  const host = await createBrowserHost(libs, buildLibs, { useShim: true })
   const res = await axios.get(obj.resourceProviderUrl);
   const entryFiles = res.data.entryFiles;
   for (const entryFile of entryFiles) {

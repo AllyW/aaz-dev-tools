@@ -44,7 +44,12 @@ const packages = [
   "@azure-tools/typespec-azure-core",
   "@azure-tools/typespec-client-generator-core",
   "@azure-tools/typespec-azure-resource-manager",
+  "@azure-tools/typespec-liftr-base",
 ];
+
+const buildPackages = [
+    //  "../web/node_modules/@azure-tools/typespec-liftr-base"
+]
 
 function removeDirRecursive(dirPath) {
   if (existsSync(dirPath)) {
@@ -144,6 +149,18 @@ async function syncTypespecPackages() {
       importMap[join(project.manifest.name, key)] = value;
     }
   }
+
+  for (const buildPackage of buildPackages) {
+    const project = await findWorkspacePackagesNoCheck(resolve(repoRoot, buildPackage))
+    const bundle = await createTypeSpecBundle(resolve(repoRoot, project[0].dir));
+    const manifest = bundle.manifest;
+    const result = await syncPackage(bundle);
+    console.log(`Bundle for package ${manifest.name}@${manifest.version} synced.`);
+    for (const [key, value] of Object.entries(result.imports)) {
+      importMap[join(project[0].manifest.name, key)] = value;
+    }
+  }
+
   console.log(`Import map:`, importMap);
   syncIndex({
     "imports": importMap,
