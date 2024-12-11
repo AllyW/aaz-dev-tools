@@ -384,6 +384,21 @@ function extractHttpResponses(context: AAZOperationEmitterContext, operation: Ht
   if (success204Response !== undefined) {
     responses.push(success204Response);
   }
+  const success_status_code = [
+    ...success2xxResponse?.statusCode!,
+    ...success202Response?.statusCode!,
+    ...success204Response?.statusCode!
+  ]
+  const lro_base_status_code = success_status_code.filter(code => [200, 201].includes(code))
+  if (lro_base_status_code.length === 0 && lroMetadata !== undefined && operation.verb === "delete"){
+    const lro_response: CMDHttpResponse = {
+      statusCode: [200, 201],
+      isError: false,
+      description: "Response schema for long-running operation.",
+    };
+    responses.push(lro_response)
+  }
+
   if (redirectResponse !== undefined) {
     responses.push(redirectResponse);
   }
