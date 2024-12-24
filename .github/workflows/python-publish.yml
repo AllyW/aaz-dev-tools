@@ -92,6 +92,8 @@ jobs:
           pip install --upgrade pip setuptools wheel virtualenv
           npm install -g pnpm
           pnpm install
+          cd src/typespec
+          pnpm install
         env:
           CI: false
 
