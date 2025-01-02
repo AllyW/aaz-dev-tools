@@ -6,10 +6,12 @@ import {
   projectProgram,
   Program,
   resolvePath,
+  Namespace,
+  getService,
 } from "@typespec/compiler";
 
 import { buildVersionProjections } from "@typespec/versioning";
-import { HttpService, getAllHttpServices, reportIfNoRoutes } from "@typespec/http";
+import { HttpService, getAllHttpServices, reportIfNoRoutes, getHttpService } from "@typespec/http";
 import { getResourcePath, swaggerResourcePathToResourceId, } from "./utils.js";
 import { AAZResourceSchema } from "./types.js";
 import { AAZEmitterOptions, getTracer } from "./lib.js";
@@ -90,7 +92,6 @@ async function createGetResourceOperationEmitter(context: EmitContext<AAZEmitter
   const apiVersion = sdkContext.apiVersion!;
   tracer.trace("apiVersion", apiVersion);
 
-  let projectedProgram: Program;
   const resOps: Record<string, AAZResourceSchema> = {};
   context.options?.resources?.forEach((id) => {
     resOps[id] = {
@@ -103,18 +104,25 @@ async function createGetResourceOperationEmitter(context: EmitContext<AAZEmitter
   async function getResourcesOperations() {
     const services = listServices(context.program);
     for (const service of services) {
+      const originalProgram = context.program;
+      let program = context.program;
       // currentService = service;
       const versions = buildVersionProjections(context.program, service.type).filter(
         (v) => apiVersion === v.version
       );
       for (const record of versions) {
-        projectedProgram = context.program;
-        if (record.projections.length > 0) {
-          projectedProgram = projectProgram(context.program, record.projections);
-        }
+        const projectedProgram = (program = projectProgram(originalProgram, record.projections));
+        const projectedServiceNs: Namespace = projectedProgram
+          ? (projectedProgram.projector.projectedTypes.get(service.type) as Namespace)
+          : service.type;
+        const projectedService =
+          projectedServiceNs === program.getGlobalNamespaceType()
+            ? { type: program.getGlobalNamespaceType() }
+            : getService(program, projectedServiceNs)!;
+
         const aazContext: AAZEmitterContext = {
-          program: projectedProgram,
-          service: service,
+          program: program,
+          service: projectedService,
           sdkContext: sdkContext,
           apiVersion: apiVersion,
           tracer,
@@ -135,9 +143,12 @@ async function createGetResourceOperationEmitter(context: EmitContext<AAZEmitter
   return { getResourcesOperations };
 
   function emitResourceOps(context: AAZEmitterContext) {
-    const services = ignoreDiagnostics(getAllHttpServices(context.program));
-    const operations = services[0].operations;
-    reportIfNoRoutes(projectedProgram, operations);
+    const { program, service } = context;
+    // const services = ignoreDiagnostics(getAllHttpServices(context.program));
+    // const operations = services[0].operations;
+    const httpService = ignoreDiagnostics(getHttpService(program, service.type));
+    const operations = httpService.operations; 
+    reportIfNoRoutes(program, operations);
 
     operations.forEach((op) => {
       const resourcePath = getResourcePath(context.program, op);
