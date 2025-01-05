@@ -3,7 +3,7 @@ import { AAZEmitterContext, AAZOperationEmitterContext, AAZSchemaEmitterContext 
 import { resolveOperationId } from "./utils.js";
 import { TypeSpecPathItem } from "./model/path_item.js";
 import { CMDHttpOperation } from "./model/operation.js";
-import { DiagnosticTarget, Enum, EnumMember, Model, ModelProperty, Namespace, Program, Scalar, TwoLevelMap, Type, Union, Value, getDiscriminator, getDoc, getEncode, getFormat, getMaxItems, getMaxLength, getMaxValue, getMaxValueExclusive, getMinItems, getMinLength, getMinValue, getMinValueExclusive, getPattern, getProjectedName, getProperty, isArrayModelType, isNeverType, isNullType, isRecordModelType, isService, isTemplateDeclaration, isVoidType, resolveEncodedName } from "@typespec/compiler";
+import { DiagnosticTarget, Enum, EnumMember, Model, ModelProperty, Namespace, Program, Scalar, TwoLevelMap, Type, Union, Value, getDiscriminator, getDoc, getEncode, getFormat, getMaxItems, getMaxLength, getMaxValue, getMaxValueExclusive, getMinItems, getMinLength, getMinValue, getMinValueExclusive, getPattern, getProjectedName, getProperty, isArrayModelType, isNeverType, isNullType, isRecordModelType, isService, isTemplateDeclaration, isSecret, isVoidType, resolveEncodedName } from "@typespec/compiler";
 import { LroMetadata, PagedResultMetadata, UnionEnum, getArmResourceIdentifierConfig, getLroMetadata, getPagedResult, getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import { XmsPageable } from "./model/x_ms_pageable.js";
 import { CMDHttpRequest, CMDHttpResponse } from "./model/http.js";
@@ -1261,6 +1261,7 @@ function applySchemaFormat(
 ): CMDSchemaBase {
   let schema = target;
   const formatStr = getFormat(context.program, type);
+  const is_secret = isSecret(context.program, type);
   switch (target.type) {
     case "byte":
       schema = {
@@ -1377,6 +1378,12 @@ function applySchemaFormat(
             ...schema,
             format: emitStringFormat(context, type, (schema as CMDStringSchemaBase).format),
           } as CMDStringSchemaBase;
+      }
+      if (is_secret) {
+        schema = {
+          ...schema,
+          type: "password",
+        };
       }
       break;
     // case "date":
