@@ -1258,6 +1258,8 @@ class WorkspaceManager:
     def load_client_cfg_editor(self, reload=False):
         if not reload and self._client_cfg_editor:
             return self._client_cfg_editor
+        if self.is_in_memory:
+            return None
         assert not self.is_in_memory
         try:
             self._client_cfg_editor = WorkspaceClientCfgEditor.load_client_cfg(self.folder)
