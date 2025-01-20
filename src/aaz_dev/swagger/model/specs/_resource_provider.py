@@ -142,7 +142,7 @@ class OpenAPIResourceProvider:
             with open(readme_path, 'r', encoding='utf-8') as f:
                 readme = f.read()
 
-            pattern = re.compile(r'yaml\s*\$\(\s*tag\s*\)\s*==\s*\'([^\']+)\'\s*input-file:\s*((?:\s*- [^\n]+\s*)+)\s*',
+            pattern = re.compile(r'```\s*yaml\s*\$\(\s*tag\s*\)\s*==\s*\'([^\']+)\'\s*input-file:\s*((?:\s*- [^\n]+\s*)+)\s*```',
                        flags=re.DOTALL)
             for piece in pattern.finditer(readme):
                 tag = piece[1].strip()
