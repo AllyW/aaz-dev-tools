@@ -13,8 +13,8 @@ importers:
         version: 1.0.0
     devDependencies:
       '@azure-tools/typespec-liftr-base':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.0
+        version: 0.7.0
       '@pnpm/find-workspace-packages':
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.0.0)
@@ -2970,8 +2970,8 @@ packages:
   '@astrojs/yaml2ts@0.2.2':
     resolution: {integrity: sha512-GOfvSr5Nqy2z5XiwqTouBBpy5FyI6DEe+/g/Mk5am9SjILN1S5fOEvYK0GuWHg98yS/dobP4m8qyqw/URW35fQ==}
 
-  '@azure-tools/typespec-liftr-base@0.6.0':
-    resolution: {integrity: sha512-MQV7ESlCqWrgclTSgs/dllS/jKrMrjs9C0UNExXsYhpjUtpv/BnmToWaWL4hA/5rg5JgxDp1MSAjZ5PBjGo1ig==}
+  '@azure-tools/typespec-liftr-base@0.7.0':
+    resolution: {integrity: sha512-r4pPk/nOVo6S651McQqLmuSNr7FIRLzt7pj2Pk0+H5EgniKm6X0uwsXk7u2N2GpEmoGnL2yVNxTTMSOtUrkXwQ==}
 
   '@azure/abort-controller@1.1.0':
     resolution: {integrity: sha512-TrRLIoSQVzfAJX9H1JeFjzAoDGcoK1IYX1UImfceTZpsyYfWr09Ss1aHW1y5TrrR3iq6RZLBwJ3E24uwPhwahw==}
@@ -12712,7 +12712,7 @@ snapshots:
     dependencies:
       yaml: 2.5.1
 
-  '@azure-tools/typespec-liftr-base@0.6.0': {}
+  '@azure-tools/typespec-liftr-base@0.7.0': {}
 
   '@azure/abort-controller@1.1.0':
     dependencies:
