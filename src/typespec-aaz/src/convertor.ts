@@ -1,4 +1,7 @@
 import { HttpOperation, HttpOperationBody, HttpOperationMultipartBody, HttpOperationResponse, HttpStatusCodeRange, HttpStatusCodesEntry, Visibility, createMetadataInfo, getHeaderFieldOptions, getQueryParamOptions, getServers, getStatusCodeDescription, getVisibilitySuffix, isContentTypeHeader, resolveRequestVisibility } from "@typespec/http";
+import {
+  isAzureResource,
+} from "@azure-tools/typespec-azure-resource-manager";
 import { AAZEmitterContext, AAZOperationEmitterContext, AAZSchemaEmitterContext } from "./context.js";
 import { resolveOperationId } from "./utils.js";
 import { TypeSpecPathItem } from "./model/path_item.js";
@@ -667,8 +670,16 @@ function convertModel2CMDObjectSchemaBase(context: AAZSchemaEmitterContext, mode
       supportClsSchema: true,
     }, prop, jsonName);
     if (schema) {
+      if (!context.metadateInfo.isOptional(prop, context.visibility) || prop.name === discriminator?.propertyName) {
+        schema.required = true;
+      }
       if (isReadonlyProperty(context.program, prop)) {
         schema.readOnly = true;
+        if (schema.required) {
+          // read_only property is not required
+          // console.log("Ignore requirement of the read only property: ", schema.name)
+          schema.required = false;
+        }
       }
       if (!context.metadateInfo.isOptional(prop, context.visibility) || prop.name === discriminator?.propertyName) {
         schema.required = true;
@@ -734,11 +745,13 @@ function convertModel2CMDObjectSchemaBase(context: AAZSchemaEmitterContext, mode
     }
   }
 
-  if (isAzureResource(context, payloadModel) && properties.location) {
-    properties.location = {
-      ...(properties.location as CMDStringSchema),
-      type: "ResourceLocation"
-    } as CMDResourceLocationSchema;
+  if (isAzureResourceAll(context, payloadModel)) {
+    if (properties.location) {
+      properties.location = {
+        ...(properties.location as CMDStringSchema),
+        type: "ResourceLocation"
+      } as CMDResourceLocationSchema;
+    }
   }
 
   if (properties.userAssignedIdentities && properties.type) {
@@ -780,9 +793,9 @@ function convertModel2CMDArraySchemaBase(context: AAZSchemaEmitterContext, model
     item: item,
     identifiers: getExtensions(context.program, payloadModel).get("x-ms-identifiers"),
   };
-  if (item.type === "object" && !array.identifiers && getProperty(payloadModel.indexer.value as Model, "id") && getProperty(payloadModel.indexer.value as Model, "name")) {
-    array.identifiers = ["name"];
-  }
+  // if (item.type === "object" && !array.identifiers && getProperty(payloadModel.indexer.value as Model, "id") && getProperty(payloadModel.indexer.value as Model, "name")) {
+  //   array.identifiers = ["name"];
+  // }
   return array;
 }
 
@@ -1186,12 +1199,12 @@ function getDiscriminatorInfo(context: AAZSchemaEmitterContext, model: Model): D
   return undefined;
 }
 
-function isAzureResource(context: AAZSchemaEmitterContext, model: Model): boolean {
+function isAzureResourceAll(context: AAZSchemaEmitterContext, model: Model): boolean {
   let current = model;
-  let isResource = getExtensions(context.program, current).get("x-ms-azure-resource");
+  let isResource = isAzureResource(context.program, current);
   while (!isResource && current.baseModel) {
     current = current.baseModel;
-    isResource = getExtensions(context.program, current).get("x-ms-azure-resource");
+    isResource = isAzureResource(context.program, current);
   }
   return !!isResource;
 }
