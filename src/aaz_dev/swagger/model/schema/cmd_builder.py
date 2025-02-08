@@ -52,6 +52,11 @@ class CMDBuilder:
         self.parent_ids = parent_ids or []
         self.cls_definitions = {} if cls_definitions is None else cls_definitions
         self.parameterized_host = parameterized_host
+        print("-----------------------------------------")
+        # file:  src/aaz_dev/swagger/model/schema/cmd_builder.py , func: init, from class:  CMDBuilder ,
+        # path:  /subscriptions/{subscriptionId}/providers/Microsoft.Community/communityTrainings
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: init, from class: ", self.__class__.__name__, ", path: ", path)
+        print("-----------------------------------------")
 
     def __call__(self, schema, **kwargs):
         sub_builder = CMDBuilder(
@@ -343,6 +348,8 @@ class CMDBuilder:
                 enum.items.append(item)
 
         model.enum = enum
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: setup_enum, from class: CMDBuilder, schema: ",
+              schema.__class__.__name__)
 
     def setup_fmt(self, model, schema):
         if not hasattr(model, 'fmt'):

@@ -443,6 +443,10 @@ def editor_workspace_command_argument(name, node_names, leaf_name, arg_var):
         cfg_editor.update_arg_by_var(*node_names, leaf_name, arg_var=arg_var, **data)
         manager.save()
         arg, _ = cfg_editor.find_arg_by_var(*node_names, leaf_name, arg_var=arg_var)
+        print("-----------------------------------------")
+
+        print("arg type in patch cmd arg: ", arg.__class__.__name__)
+        print("-----------------------------------------")
         result = arg.to_primitive()
     else:
         raise NotImplementedError()

@@ -1044,6 +1044,8 @@ class CMDArraySchemaBase(CMDSchemaBase):
         if self.identifiers:
             identifiers = sorted(self.identifiers, key=lambda i: (len(i), i))
             item_instance = self.item
+            print("kwargs", kwargs)
+            print("identifiers", identifiers)
             if isinstance(item_instance, CMDClsSchemaBase):
                 item_instance = item_instance.implement
             if not isinstance(item_instance, CMDObjectSchemaBase):

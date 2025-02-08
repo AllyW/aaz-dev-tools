@@ -26,6 +26,9 @@ class WorkspaceCfgEditor(CfgReader, ArgumentUpdateMixin):
             else:
                 path = os.path.join(path, name)
                 name = ""
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]),
+              ", func: get_cfg_folder, from class: WorkspaceCfgEditor, path: ", path)
         return path
 
     @classmethod
@@ -47,6 +50,7 @@ class WorkspaceCfgEditor(CfgReader, ArgumentUpdateMixin):
             if resource.version != version:
                 raise ValueError(f"Resource version not match: {version} != {resource.version}")
         cfg_editor = cls(cfg)
+        # CMDConfiguration reformat
         cfg_editor.reformat()
         return cfg_editor
 

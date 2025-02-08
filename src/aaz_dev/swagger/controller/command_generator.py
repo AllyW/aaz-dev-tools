@@ -32,6 +32,11 @@ class _CommandGenerator(ABC):
 
     @classmethod
     def generate_command(cls, path_item, resource, instance_var, cmd_builder, op):
+        # path_item: swagger spec resource path item or typespec pathitem
+        # resource: swagger spec resource
+        # instance_var: "$Instance"
+        # cmd_builder: swagger.model.schema.cmd_builder
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: generate_command, from class: ", cls.__class__.__name__)
         command = CMDCommand()
         command.version = cls.generate_command_version(resource)
         command.resources = [
@@ -47,7 +52,7 @@ class _CommandGenerator(ABC):
 
         command.description = op.description
         command.operations = [op]
-
+        # parse swagger resource arg into cmd args here
         command.generate_args()
         command.generate_outputs(pageable=cmd_builder.get_pageable(path_item, op))
 
@@ -381,7 +386,8 @@ class _CommandGenerator(ABC):
                                    update_by=None,
                                    methods=('get', 'delete', 'put', 'post', 'head', 'patch'),
                                    **kwargs):
-
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: create_draft_command_group, from class: ",
+              self.__class__.__name__)
         command_group = CMDCommandGroup()
         command_group.commands = []
         path_item = self.get_path_item(resource)
@@ -532,9 +538,14 @@ class SwaggerCommandGenerator(_CommandGenerator):
 
     def __init__(self):
         super().__init__()
+        print("-----------------------------------------")
+
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: init, from class: ", self.__class__.__name__)
         self.loader = SwaggerLoader()
 
     def load_resources(self, resources):
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: load_resources, from class: ",
+              self.__class__.__name__)
         for resource in resources:
             self.loader.load_file(resource.file_path)
         self.loader.link_swaggers()
@@ -564,9 +575,14 @@ class TypespecCommandGenerator(_CommandGenerator):
 
     def __init__(self):
         super().__init__()
+        print("-----------------------------------------")
+
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: init, from class: ", self.__class__.__name__)
         self._path_items = {}
 
     def load_resources(self, resources):
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: load_resources, from class: ",
+              self.__class__.__name__)
         for resource in resources:
             self._path_items[resource['path']] = TypeSpecPathItem(resource['pathItem'])
     

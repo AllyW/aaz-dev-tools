@@ -96,6 +96,10 @@ class ReferenceSchema(Model, Linkable):
 
     def to_cmd(self, builder, support_cls_schema=False, **kwargs):
         model = builder.register_cls_definition(self, support_cls_schema=support_cls_schema, **kwargs)
+        # file:  src/aaz_dev/swagger/model/schema/schema.py , func: to_cmd, build class:  CMDBuilder  from class:  ReferenceSchema , kwargs:  {}
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: to_cmd, build class: ", builder.__class__.__name__, " from class: ", self.__class__.__name__, ", kwargs: ", kwargs)
+        print("-----------------------------------------")
         if isinstance(model, CMDSchema):
             builder.setup_description(model, self)
             if self.x_ms_client_flatten:
@@ -264,6 +268,9 @@ class Schema(Model, Linkable):
     _x_typespec_name = XTypespecNameField()  # Typespec field name
 
     def __init__(self, *args, **kwargs):
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: init, from class: ", self.__class__.__name__, ", args: ", args, ", kwargs:", kwargs)
+        print("-----------------------------------------")
         super().__init__(*args, **kwargs)
         self.ref_instance = None
         self.disc_parent = None
@@ -357,6 +364,10 @@ class Schema(Model, Linkable):
                 self.disc_parent.disc_children[disc_value] = self
 
     def to_cmd(self, builder, **kwargs):
+        # file:  src/aaz_dev/swagger/model/schema/schema.py , func: to_cmd, build class:  CMDBuilder  from class:  Schema , kwargs:  {'support_cls_schema': True}
+        print("-----------------------------------------")
+        print("file: ", "/".join(__file__.split("/")[-6:]), ", func: to_cmd, build class: ", builder.__class__.__name__, " from class: ", self.__class__.__name__, ", kwargs: ", kwargs)
+        print("-----------------------------------------")
         if self.ref_instance is not None:
             model = builder(self.ref_instance, support_cls_schema=True)
         else:
