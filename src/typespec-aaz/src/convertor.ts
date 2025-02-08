@@ -685,6 +685,11 @@ function convertModel2CMDObjectSchemaBase(context: AAZSchemaEmitterContext, mode
           schema.required = false;
         }
       }
+      const extensions = getExtensions(context.program, prop);
+      if (extensions.has("x-ms-identifiers") && schema.type instanceof ArrayType) {
+          (schema as CMDArraySchemaBase).identifiers = extensions.get("x-ms-identifiers");
+      }
+
       if (shouldClientFlatten(context, prop)) {
         if (schema.type === "object") {
           schema = {
@@ -792,9 +797,6 @@ function convertModel2CMDArraySchemaBase(context: AAZSchemaEmitterContext, model
     item: item,
     identifiers: getExtensions(context.program, payloadModel).get("x-ms-identifiers"),
   };
-  if (item.type === "object" && !array.identifiers && getProperty(payloadModel.indexer.value as Model, "id") && getProperty(payloadModel.indexer.value as Model, "name")) {
-    array.identifiers = ["name"];
-  }
   return array;
 }
 
