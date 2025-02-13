@@ -546,7 +546,7 @@ function convert2CMDSchema(context: AAZSchemaEmitterContext, param: ModelPropert
     }
     schema = {
       ...schema,
-      ...applyOpenapiExtensions(context, param, schema)
+      ...applyExtensionsDecorators(context, param, schema)
     }
   }
   return schema;
@@ -595,7 +595,7 @@ function convert2CMDSchemaBase(context: AAZSchemaEmitterContext, type: Type): CM
   }
   if (schema) {
     schema = applySchemaFormat(context, type, schema);
-    schema = applyOpenapiExtensions(context, type, schema);
+    schema = applyExtensionsDecorators(context, type, schema);
   }
 
   return schema;
@@ -690,7 +690,6 @@ function convertModel2CMDObjectSchemaBase(context: AAZSchemaEmitterContext, mode
           schema.required = false;
         }
       }
-
       if (shouldClientFlatten(context, prop)) {
         if (schema.type === "object") {
           schema = {
@@ -1652,8 +1651,8 @@ function emitArrayFormat(context: AAZSchemaEmitterContext, type: Model, targetFo
 
 // TODO: add emitResourceIdFormat
 
-// apply openapi extension decorators
-function applyOpenapiExtensions(
+// apply extension decorators
+function applyExtensionsDecorators(
   context: AAZSchemaEmitterContext,
   type:Type,
   schema: CMDSchemaBase
