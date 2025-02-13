@@ -544,6 +544,10 @@ function convert2CMDSchema(context: AAZSchemaEmitterContext, param: ModelPropert
       ...schema,
       ...applySchemaFormat(context, param, schema as CMDSchemaBase)
     }
+    schema = {
+      ...schema,
+      ...applyOpenapiExtensions(context, param, schema)
+    }
   }
   return schema;
 }
@@ -591,6 +595,7 @@ function convert2CMDSchemaBase(context: AAZSchemaEmitterContext, type: Type): CM
   }
   if (schema) {
     schema = applySchemaFormat(context, type, schema);
+    schema = applyOpenapiExtensions(context, type, schema);
   }
 
   return schema;
@@ -684,10 +689,6 @@ function convertModel2CMDObjectSchemaBase(context: AAZSchemaEmitterContext, mode
           // console.log("Ignore requirement of the read only property: ", schema.name)
           schema.required = false;
         }
-      }
-      const extensions = getExtensions(context.program, prop);
-      if (extensions.has("x-ms-identifiers") && schema.type instanceof ArrayType) {
-          (schema as CMDArraySchemaBase).identifiers = extensions.get("x-ms-identifiers");
       }
 
       if (shouldClientFlatten(context, prop)) {
@@ -1651,7 +1652,21 @@ function emitArrayFormat(context: AAZSchemaEmitterContext, type: Model, targetFo
 
 // TODO: add emitResourceIdFormat
 
-
+// apply openapi extension decorators
+function applyOpenapiExtensions(
+  context: AAZSchemaEmitterContext,
+  type:Type,
+  schema: CMDSchemaBase
+): CMDSchemaBase {
+  const extensions = getExtensions(context.program, type);
+  if (extensions.has("x-ms-identifiers") && schema.type instanceof ArrayType) {
+      (schema as CMDArraySchemaBase).identifiers = extensions.get("x-ms-identifiers");
+  }
+  if (extensions.has("x-ms-secret")) {
+    (schema as CMDSchema).secret = extensions.get("x-ms-secret");
+  }
+  return schema;
+}
 // Utils functions
 
 function getJsonName(context: AAZOperationEmitterContext, type: Type & { name: string }): string {
