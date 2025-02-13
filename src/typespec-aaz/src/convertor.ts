@@ -544,6 +544,10 @@ function convert2CMDSchema(context: AAZSchemaEmitterContext, param: ModelPropert
       ...schema,
       ...applySchemaFormat(context, param, schema as CMDSchemaBase)
     }
+    schema = {
+      ...schema,
+      ...applyExtensionsDecorators(context, param, schema)
+    }
   }
   return schema;
 }
@@ -591,6 +595,7 @@ function convert2CMDSchemaBase(context: AAZSchemaEmitterContext, type: Type): CM
   }
   if (schema) {
     schema = applySchemaFormat(context, type, schema);
+    schema = applyExtensionsDecorators(context, type, schema);
   }
 
   return schema;
@@ -792,9 +797,6 @@ function convertModel2CMDArraySchemaBase(context: AAZSchemaEmitterContext, model
     item: item,
     identifiers: getExtensions(context.program, payloadModel).get("x-ms-identifiers"),
   };
-  if (item.type === "object" && !array.identifiers && getProperty(payloadModel.indexer.value as Model, "id") && getProperty(payloadModel.indexer.value as Model, "name")) {
-    array.identifiers = ["name"];
-  }
   return array;
 }
 
@@ -1649,7 +1651,21 @@ function emitArrayFormat(context: AAZSchemaEmitterContext, type: Model, targetFo
 
 // TODO: add emitResourceIdFormat
 
-
+// apply extension decorators
+function applyExtensionsDecorators(
+  context: AAZSchemaEmitterContext,
+  type:Type,
+  schema: CMDSchemaBase
+): CMDSchemaBase {
+  const extensions = getExtensions(context.program, type);
+  if (extensions.has("x-ms-identifiers") && schema.type instanceof ArrayType) {
+      (schema as CMDArraySchemaBase).identifiers = extensions.get("x-ms-identifiers");
+  }
+  if (extensions.has("x-ms-secret")) {
+    (schema as CMDSchema).secret = extensions.get("x-ms-secret");
+  }
+  return schema;
+}
 // Utils functions
 
 function getJsonName(context: AAZOperationEmitterContext, type: Type & { name: string }): string {
