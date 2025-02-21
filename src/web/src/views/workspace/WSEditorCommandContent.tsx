@@ -502,15 +502,6 @@ class WSEditorCommandContent extends React.Component<WSEditorCommandContentProps
                                 Delete
                             </Typography>
                         </Button>
-                        <Button
-                            variant='outlined' size="small" color='secondary'
-                            sx={{ mr: 2 }}
-                            disabled
-                        >
-                            <Typography variant='body2'>
-                                Try
-                            </Typography>
-                        </Button>
                     </Box>}
                 </CardActions>
             </Card>)
