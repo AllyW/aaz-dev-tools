@@ -1,5 +1,5 @@
 from command.model.configuration import CMDStringArgBase, CMDByteArgBase, CMDBinaryArgBase, CMDDurationArgBase, \
-    CMDDateArgBase, CMDDateTimeArgBase, CMDTimeArgBase, CMDTimeArg, CMDUuidArgBase, CMDPasswordArgBase, \
+    CMDDateArgBase, CMDDateTimeArgBase, CMDTimeArgBase, CMDAnyTypeArgBase, CMDUuidArgBase, CMDPasswordArgBase, \
     CMDSubscriptionIdArgBase, CMDResourceGroupNameArgBase, CMDResourceIdArgBase, CMDResourceLocationArgBase, \
     CMDIntegerArgBase, CMDBooleanArgBase, CMDFloatArgBase, CMDObjectArgBase, CMDArrayArgBase, CMDClsArgBase, \
     CMDSubscriptionIdArg, CMDArg
@@ -139,6 +139,7 @@ def _iter_scopes_by_arg_base(arg, name, scope_define, cmd_ctx):
                     search_args[a_name] = a
             else:
                 # AAZFreeFormDictArg
+                # TODO: remove it after aaz repo updated without any_type property
                 assert arg.additional_props.any_type is True
     elif isinstance(arg, CMDArrayArgBase):
         # AAZListArg
@@ -291,7 +292,9 @@ def render_arg_base(arg, cmd_ctx, arg_kwargs=None):
     if arg.blank:
         arg_kwargs["blank"] = arg.blank.value
 
-    if isinstance(arg, CMDStringArgBase):
+    if isinstance(arg, CMDAnyTypeArgBase):
+        arg_type = "AAZAnyTypeArg"
+    elif isinstance(arg, CMDStringArgBase):
         arg_type = "AAZStrArg"
         enum_kwargs = parse_arg_enum(arg.enum)
         if enum_kwargs:

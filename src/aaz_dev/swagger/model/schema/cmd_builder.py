@@ -22,6 +22,7 @@ from command.model.configuration import CMDSchemaDefault, \
     CMDObjectSchema, CMDObjectSchemaBase, \
     CMDArraySchema, CMDArraySchemaBase, \
     CMDClsSchema, CMDClsSchemaBase, \
+    CMDAnyTypeSchema, CMDAnyTypeSchemaBase, \
     CMDHttpResponseJsonBody
 from command.controller.workspace_cfg_editor import WorkspaceCfgEditor
 
@@ -96,8 +97,13 @@ class CMDBuilder:
         return False
 
     def build_schema(self, schema):
-        schema_type = getattr(schema, 'type', None)
-        if schema_type == "string":
+        schema_type = getattr(schema, 'type', None)  # according the swagger spec, the type is any if not defined
+        if schema_type is None:
+            if self.in_base:
+                model = CMDAnyTypeSchemaBase()
+            else:
+                model = CMDAnyTypeSchema()
+        elif schema_type == "string":
             if schema.format is None or schema.format == "uri":
                 if self.in_base:
                     model = CMDStringSchemaBase()

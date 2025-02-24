@@ -22,6 +22,7 @@ from ._arg import CMDArgEnumItem, CMDArgEnum, \
     CMDFloat32ArgBase, CMDFloat32Arg, CMDFloat64ArgBase, CMDFloat64Arg, \
     CMDObjectArgBase, CMDObjectArg, \
     CMDArrayArgBase, CMDArrayArg, \
+    CMDAnyTypeArgBase, CMDAnyTypeArg, \
     CMDArgPromptInput, CMDPasswordArgPromptInput
 from ._arg_builder import CMDArgBuilder
 from ._arg_group import CMDArgGroup
@@ -78,7 +79,8 @@ from ._schema import CMDSchemaEnumItem, CMDSchemaEnum, CMDSchemaDefault, \
     CMDFloat64SchemaBase, CMDFloat64Schema, \
     CMDObjectSchemaDiscriminator, CMDObjectSchemaAdditionalProperties, CMDObjectSchemaBase, CMDObjectSchema, \
     CMDIdentityObjectSchemaBase, CMDIdentityObjectSchema, \
-    CMDArraySchemaBase, CMDArraySchema
+    CMDArraySchemaBase, CMDArraySchema, \
+    CMDAnyTypeSchemaBase, CMDAnyTypeSchema
 from ._selector_index import CMDSelectorIndexBase, CMDSelectorIndex, CMDObjectIndexDiscriminator, \
     CMDObjectIndexAdditionalProperties, CMDObjectIndexBase, CMDObjectIndex, CMDArrayIndexBase, CMDArrayIndex, \
     CMDSimpleIndexBase, CMDSimpleIndex

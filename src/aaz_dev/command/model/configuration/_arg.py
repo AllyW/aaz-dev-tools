@@ -666,14 +666,24 @@ class CMDFloat64Arg(CMDFloat64ArgBase, CMDFloatArg):
     pass
 
 
+class CMDAnyTypeArgBase(CMDArgBase):
+    TYPE_VALUE = "any"
+
+
+class CMDAnyTypeArg(CMDAnyTypeArgBase, CMDArg):
+    pass
+
+
 # object
 class CMDObjectArgAdditionalProperties(Model):
     # properties as nodes
     item = CMDArgBaseField()
+
+    # WARNING: this property will be deprecated as CMDAnyTypeArgBase are supported, should directly use CMDAnyTypeArgBase as item value
     any_type = CMDBooleanField(
         serialized_name="anyType",
         deserialize_from="anyType",
-    )  # when item is not defined and support any type for additional properties
+    )
 
     class Options:
         serialize_when_none = False
@@ -686,12 +696,12 @@ class CMDObjectArgAdditionalProperties(Model):
         return arg
 
     def reformat(self, **kwargs):
+        if self.any_type and not self.item:
+            # use CMDAnyTypeArgBase as item value instead
+            self.item = CMDAnyTypeArgBase()
+            # deprecated the any_type property
+            self.any_type = None
         if self.item:
-            if self.any_type:
-                raise exceptions.VerificationError(
-                    "InvalidAdditionalPropertiesDefinition",
-                    details="Additional property defined 'item' and 'any_type'."
-                )
             try:
                 self.item.reformat(**kwargs)
             except exceptions.VerificationError as err:

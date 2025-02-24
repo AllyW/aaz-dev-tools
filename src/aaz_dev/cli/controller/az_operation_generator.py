@@ -3,7 +3,7 @@ from command.model.configuration import (
     CMDHttpResponseJsonBody, CMDObjectSchema, CMDSchema, CMDStringSchemaBase, CMDIntegerSchemaBase, CMDFloatSchemaBase,
     CMDBooleanSchemaBase, CMDObjectSchemaBase, CMDArraySchemaBase, CMDClsSchemaBase, CMDJsonInstanceUpdateAction,
     CMDObjectSchemaDiscriminator, CMDSchemaEnum, CMDJsonInstanceCreateAction, CMDJsonInstanceDeleteAction,
-    CMDInstanceCreateOperation, CMDInstanceDeleteOperation, CMDClientEndpointsByTemplate, CMDIdentityObjectSchemaBase)
+    CMDInstanceCreateOperation, CMDInstanceDeleteOperation, CMDClientEndpointsByTemplate, CMDIdentityObjectSchemaBase, CMDAnyTypeSchemaBase)
 from utils import exceptions
 from utils.case import to_snake_case
 from utils.error_format import AAZErrorFormatEnum
@@ -978,8 +978,9 @@ def render_schema_base(schema, cls_map, schema_kwargs=None):
    
     if schema.nullable:
         schema_kwargs['nullable'] = True
-
-    if isinstance(schema, CMDStringSchemaBase):
+    if isinstance(schema, CMDAnyTypeSchemaBase):
+        schema_type = "AAZAnyType"
+    elif isinstance(schema, CMDStringSchemaBase):
         schema_type = "AAZStrType"
     elif isinstance(schema, CMDIntegerSchemaBase):
         schema_type = "AAZIntType"
@@ -996,6 +997,7 @@ def render_schema_base(schema, cls_map, schema_kwargs=None):
                 # treat it as AAZFreeFormDictType
                 schema_type = "AAZFreeFormDictType"
         elif schema.additional_props:
+            # TODO: remove it after aaz repo updated without any_type property
             if schema.additional_props.any_type is True:
                 schema_type = "AAZFreeFormDictType"
             else:

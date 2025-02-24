@@ -7,8 +7,8 @@ from ._arg import CMDArg, CMDArgBase, CMDArgumentHelp, CMDArgEnum, CMDArgDefault
 from ._format import CMDFormat
 from ._schema import CMDObjectSchema, CMDSchema, CMDSchemaBase, CMDObjectSchemaBase, CMDObjectSchemaDiscriminator, \
     CMDArraySchemaBase, CMDArraySchema, CMDObjectSchemaAdditionalProperties, CMDResourceIdSchema, \
-    CMDResourceLocationSchemaBase, CMDPasswordSchema, CMDBooleanSchemaBase, CMDBooleanSchema
-from ..configuration._schema import CMDIdentityObjectSchema, CMDIdentityObjectSchemaBase, CMDStringSchemaBase, \
+    CMDResourceLocationSchemaBase, CMDPasswordSchema, CMDBooleanSchemaBase
+from ..configuration._schema import CMDIdentityObjectSchema, CMDStringSchemaBase, \
     CMDStringSchema
 
 
@@ -241,6 +241,7 @@ class CMDArgBuilder:
         else:
             return None
 
+    # WARNING: this method will be deprecated
     def get_any_type(self):
         if hasattr(self.schema, "any_type") and self.schema.any_type and self.get_sub_item() is None:
             return True
