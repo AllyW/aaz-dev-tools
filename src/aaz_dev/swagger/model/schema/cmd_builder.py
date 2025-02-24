@@ -97,8 +97,8 @@ class CMDBuilder:
         return False
 
     def build_schema(self, schema):
-        schema_type = getattr(schema, 'type', 'any')  # according the swagger spec, the type is any if not defined
-        if schema_type == "any":
+        schema_type = getattr(schema, 'type', None)  # according the swagger spec, the type is any if not defined
+        if schema_type is None:
             if self.in_base:
                 model = CMDAnyTypeSchemaBase()
             else:
