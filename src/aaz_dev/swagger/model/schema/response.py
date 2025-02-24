@@ -3,7 +3,7 @@ from schematics.types import BaseType, StringType, ModelType, DictType, PolyMode
 
 from command.model.configuration import CMDHttpResponse, CMDHttpResponseHeader, CMDHttpResponseJsonBody, \
     CMDObjectSchemaBase, CMDArraySchemaBase, CMDHttpResponseHeaderItem, CMDClsSchemaBase, CMDResponseJson, \
-    CMDBooleanSchemaBase, CMDStringSchemaBase, CMDFloatSchemaBase, CMDIntegerSchemaBase
+    CMDBooleanSchemaBase, CMDStringSchemaBase, CMDFloatSchemaBase, CMDIntegerSchemaBase, CMDAnyTypeSchemaBase
 from swagger.model.schema.fields import MutabilityEnum
 from swagger.utils import exceptions
 from utils.error_format import AAZErrorFormatEnum
@@ -87,6 +87,7 @@ class Response(Model, Linkable):
                 )
 
             if isinstance(v, (
+                    CMDAnyTypeSchemaBase,
                     CMDStringSchemaBase,
                     CMDObjectSchemaBase,
                     CMDArraySchemaBase,

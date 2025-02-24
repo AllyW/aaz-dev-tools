@@ -139,6 +139,7 @@ def _iter_scopes_by_arg_base(arg, name, scope_define, cmd_ctx):
                     search_args[a_name] = a
             else:
                 # AAZFreeFormDictArg
+                # TODO: remove it after aaz repo updated without any_type property
                 assert arg.additional_props.any_type is True
     elif isinstance(arg, CMDArrayArgBase):
         # AAZListArg

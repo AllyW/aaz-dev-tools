@@ -8,7 +8,8 @@ from command.model.configuration import CMDSchemaDefault, \
     CMDStringSchema, CMDResourceIdSchema, CMDResourceIdFormat, \
     CMDResourceLocationSchema, \
     CMDObjectSchemaBase, CMDObjectSchemaDiscriminator, CMDObjectSchemaAdditionalProperties, \
-    CMDArraySchemaBase, CMDObjectSchema, CMDIdentityObjectSchema, CMDIdentityObjectSchemaBase, CMDClsSchemaBase
+    CMDArraySchemaBase, CMDObjectSchema, CMDIdentityObjectSchema, CMDIdentityObjectSchemaBase, CMDClsSchemaBase, \
+    CMDAnyTypeSchemaBase, CMDAnyTypeSchema
 from command.model.configuration import CMDSchemaEnum, CMDSchemaEnumItem, CMDSchema, CMDSchemaBase
 from swagger.utils import exceptions
 from .external_documentation import ExternalDocumentation
@@ -567,7 +568,7 @@ class Schema(Model, Linkable):
                     # Free-Form Objects
                     # additionalProperties: true
                     model.additional_props = CMDObjectSchemaAdditionalProperties()
-                    model.additional_props.any_type = True
+                    model.additional_props.item = CMDAnyTypeSchemaBase()
 
             if model.additional_props:
                 if builder.read_only:

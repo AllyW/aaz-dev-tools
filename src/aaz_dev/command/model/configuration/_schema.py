@@ -26,7 +26,7 @@ from ._arg import CMDStringArg, CMDStringArgBase, \
     CMDFloat64Arg, CMDFloat64ArgBase, \
     CMDArrayArg, CMDArrayArgBase, \
     CMDObjectArg, CMDObjectArgBase, CMDObjectArgAdditionalProperties, \
-    CMDClsArg, CMDClsArgBase
+    CMDClsArg, CMDClsArgBase, CMDAnyTypeArg, CMDAnyTypeArgBase
 from ._fields import CMDVariantField, StringType, CMDClassField, CMDBooleanField, CMDPrimitiveField, CMDDescriptionField
 from ._format import CMDStringFormat, CMDIntegerFormat, CMDFloatFormat, CMDObjectFormat, CMDArrayFormat, \
     CMDResourceIdFormat
@@ -713,6 +713,14 @@ class CMDFloat64Schema(CMDFloat64SchemaBase, CMDFloatSchema):
     ARG_TYPE = CMDFloat64Arg
 
 
+class CMDAnyTypeSchemaBase(CMDSchemaBase):
+    TYPE_VALUE = "any"
+    ARG_TYPE = CMDAnyTypeArgBase
+
+
+class CMDAnyTypeSchema(CMDAnyTypeSchemaBase, CMDSchema):
+    ARG_TYPE = CMDAnyTypeArg
+
 # object
 
 # discriminator
@@ -809,6 +817,7 @@ class CMDObjectSchemaAdditionalProperties(Model):
 
     # properties as nodes
     item = CMDSchemaBaseField()
+    # WARNING: this property will be deprecated as CMDAnyTypeSchemaBase are supported, should directly use CMDAnyTypeSchemaBase as item value
     any_type = CMDBooleanField(
         serialized_name="anyType",
         deserialize_from="anyType"
@@ -825,10 +834,10 @@ class CMDObjectSchemaAdditionalProperties(Model):
             if not self.any_type and old.any_type:
                 diff["any_type"] = f"it's not any_type now"
 
-        if level >= CMDDiffLevelEnum.Structure:
-            if self.any_type:
-                if not old.any_type:
-                    diff["any_type"] = f"Now support any_type"
+        # if level >= CMDDiffLevelEnum.Structure:
+        #     if self.any_type:
+        #         if not old.any_type:
+        #             diff["any_type"] = f"Now support any_type"
 
         item_diff = _diff_item(self.item, old.item, level)
         if item_diff:
@@ -839,12 +848,11 @@ class CMDObjectSchemaAdditionalProperties(Model):
     def reformat(self, **kwargs):
         if self.frozen:
             return
+        # deprecated the any_type property
+        if self.any_type:
+            self.item = CMDAnyTypeSchemaBase()
+            self.any_type = None
         if self.item:
-            if self.any_type:
-                raise exceptions.VerificationError(
-                    "InvalidAdditionalPropertiesDefinition",
-                    details="Additional property defined 'item' and 'any_type'."
-                )
             self.item.reformat(**kwargs)
 
 
