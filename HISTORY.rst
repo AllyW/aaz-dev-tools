@@ -2,6 +2,23 @@
 
 Release History
 ===============
+4.0.0
+++++++
+* [Breaking Change] Dropped the dependency on `tree.json` file in aaz repo (#409)
+* Support `AnyType` schema and argument, require azure-cli-core >= 2.70.0 (#457)
+* Enhance performance of `aaz-dev command-model verify` (#433)
+* Fix error message when condition arguments are hidden (#436)
+* Fix swagger readme file parse (#440)(#441)
+* Replace inflect library by pluralizer to singular name (#437)
+* Support githooks in aaz repo (#448)(#452)
+* Improve UI (#455)(#409)
+* typespec: Add basic response for lro delete operation (#435)
+* typespec: update tsp compiler to 0.64.0 and liftr 0.7.0 (#445)
+* typespec: fix readonly property (#446)
+* typespec: support the literal type (#447)
+* typespec: adjust azure resource justification (#449)
+* typespec: support `x-ms-identifiers` and `x-ms-secret` (#450)
+
 3.2.0
 ++++++
 * Handle swagger 204 response (#426)
