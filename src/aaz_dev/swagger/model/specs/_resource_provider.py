@@ -86,7 +86,7 @@ class OpenAPIResourceProvider:
             self._tags = self._parse_readme_input_file_tags()
         return self._tags
 
-    def _parse_readme_input_file_tags_v0(self):
+    def _parse_readme_input_file_tags(self):
         tags = {}
         if not self._readme_paths:
             return tags
@@ -96,7 +96,7 @@ class OpenAPIResourceProvider:
                 readme = f.read()
 
             re_yaml = re.compile(
-                r'```\s*yaml\s*(.*\$\(\s*tag\s*\)\s*==\s*[\'"]\s*(.*)\s*[\'"].*)?\n((((?!```).)*\n)*)\s*```\s*\n',
+                r'```\s*yaml\s*(.*\$\(\s*tag\s*\)\s*==\s*[\'"]\s*(.*)\s*[\'"].*)?\n((((?!```).)*\n)*)\s*```\s*',
                 flags=re.MULTILINE)
             for piece in re_yaml.finditer(readme):
                 flags = piece[1]
@@ -121,43 +121,6 @@ class OpenAPIResourceProvider:
 
                 if len(files):
                     tag = piece[2]
-                    if tag is None:
-                        tag = ''
-                    tag = OpenAPIResourceProviderTag(tag.strip(), self)
-                    if tag not in tags:
-                        tags[tag] = set()
-                    tags[tag] = tags[tag].union(files)
-
-        tags = [*tags.items()]
-        tags.sort(key=lambda item: item[0].date, reverse=True)
-        tags = OrderedDict(tags)
-        return tags
-
-    def _parse_readme_input_file_tags(self):
-        tags = {}
-        if not self._readme_paths:
-            return tags
-
-        for readme_path in self._readme_paths:
-            with open(readme_path, 'r', encoding='utf-8') as f:
-                readme = f.read()
-
-            pattern = re.compile(r'```\s*yaml\s*\$\(\s*tag\s*\)\s*==\s*\'([^\']+)\'\s*input-file:\s*((?:\s*- [^\n]+\s*)+)\s*```',
-                       flags=re.DOTALL)
-            for piece in pattern.finditer(readme):
-                tag = piece[1].strip()
-                input_files = piece[2].splitlines()
-                files = []
-                for i_file in input_files:
-                    file_path = i_file.strip().lstrip('-').strip()
-                    file_path = file_path.replace('$(this-folder)/', '')
-                    file_path = os.path.join(os.path.dirname(readme_path), *file_path.split('/'))
-                    if not os.path.isfile(file_path):
-                        logger.warning(f'FileNotExist: {self} : {file_path}')
-                        continue
-                    files.append(file_path)
-
-                if len(files):
                     if tag is None:
                         tag = ''
                     tag = OpenAPIResourceProviderTag(tag.strip(), self)
