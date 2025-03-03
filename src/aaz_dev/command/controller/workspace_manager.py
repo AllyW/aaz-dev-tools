@@ -1070,10 +1070,12 @@ class WorkspaceManager:
         # Merge the commands of subresources which exported in aaz but not exist in current workspace
         self._merge_sub_resources_in_aaz()
 
-        # update client config
-        editor = self.load_client_cfg_editor()
-        if editor:
-            self.aaz_specs.update_client_cfg(editor.cfg)
+        # in memory worspace folder does not support client cfg
+        if not self.is_in_memory:
+            # update client config
+            editor = self.load_client_cfg_editor()
+            if editor:
+                self.aaz_specs.update_client_cfg(editor.cfg)
 
         # update configurations
         for ws_leaf in self.iter_command_tree_leaves():

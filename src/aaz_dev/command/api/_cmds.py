@@ -112,7 +112,7 @@ def generate_command_models_from_swagger(swagger_tag, workspace_path=None):
                 "id": resource_id
             })
 
-        mod_names = Config.DEFAULT_SWAGGER_MODULE.split('/')
+        mod_names = Config.DEFAULT_SWAGGER_MODULE
         ws = WorkspaceManager.new(
             name=Config.DEFAULT_SWAGGER_MODULE,
             plane=Config.DEFAULT_PLANE,
