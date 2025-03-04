@@ -2,6 +2,14 @@
 
 Release History
 ===============
+4.1.0
+++++++
+* Fix tag parse and aaz model saving for `aaz-dev command-model generate-from-swagger` and `aaz-dev cli generate-by-swagger-tag` (#444)
+* Fix resources merge with get and put query params inconsistence (#463)
+* Add autogen help message for aaz command group and command (#453)
+* Fix CLI UI set registered as default (#461)
+* typespec: update tsp compiler to 0.65.0 and its dependence and liftr to 0.8.0 (#460)(#464)
+
 4.0.0
 ++++++
 * [Breaking Change] Dropped the dependency on `tree.json` file in aaz repo (#409)
