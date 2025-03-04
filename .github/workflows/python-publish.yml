@@ -88,6 +88,8 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: Install prerequisites
+        env:
+          CI: false
         run: |
           pip install --upgrade pip setuptools wheel virtualenv
           npm install -g pnpm@9.5.0
