@@ -9,3 +9,4 @@ packages:
   - "!src/typespec/core/packages/http-client-csharp/**"
   - "!src/typespec/core/packages/http-client-java/**"
   - "!src/typespec/core/packages/http-client-python/**"
+  - "!src/typespec/core/packages/standalone/**"
