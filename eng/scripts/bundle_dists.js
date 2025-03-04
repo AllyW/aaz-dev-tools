@@ -3,7 +3,7 @@ import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
 import { createTypeSpecBundle } from "../../src/typespec/core/packages/bundler/dist/src/index.js";
 import { resolve } from "path";
 import { existsSync, readdirSync, lstatSync, unlinkSync, rmdirSync, mkdirSync, copyFileSync} from 'fs';
-import { join } from "path/posix";
+import { join, dirname } from "path/posix";
 import { writeFile } from "fs/promises";
 
 const staticDir = resolve(repoRoot, "../aaz_dev/ui");
@@ -90,10 +90,11 @@ async function syncManifest(manifest) {
 
 async function syncJsFile(pkgName, file) {
   const d = join(outputDir, pkgName)
-  if (!existsSync(d)) {
-    mkdirSync(d, { recursive: true });
-  }
   const filePath = join(d, file.filename);
+  const dirPath = dirname(filePath);
+  if (!existsSync(dirPath)) {
+    mkdirSync(dirPath, { recursive: true });
+  }
   const content = file.content;
   try {
     await writeFile(filePath, content);
