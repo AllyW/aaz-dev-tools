@@ -246,7 +246,7 @@ class WorkspaceCfgEditor(CfgReader, ArgumentUpdateMixin):
                     plus_operation.http.request.header = operation.http.request.header
                     plus_operation.http.request.body = operation.http.request.body
                     plus_operation.http.responses = operation.http.responses
-                    if operation.http.request.method.lower() == 'get':
+                    if plus_operation.http.request.method.lower() == 'get' and plus_operation.http.request.query.params:
                         # the get method in generate update command will ignore the optional query params if it's not exist in the put or patch operations.
                         # here we need to exclude them if those query params has args in the main command
                         params = []
