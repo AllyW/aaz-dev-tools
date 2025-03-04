@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const libs = [
   "@typespec/compiler",
+  "@typespec/events",
   "@typespec/http",
   "@typespec/rest",
   "@typespec/openapi",
@@ -11,7 +12,9 @@ const libs = [
   "@typespec/openapi3",
   "@typespec/json-schema",
   "@typespec/protobuf",
+  "@typespec/sse",
   "@typespec/streams",
+  "@typespec/xml",
   "@azure-tools/typespec-autorest",
   "@azure-tools/typespec-azure-core",
   "@azure-tools/typespec-client-generator-core",
