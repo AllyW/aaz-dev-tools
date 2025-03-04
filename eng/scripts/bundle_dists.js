@@ -33,6 +33,7 @@ const pkgsUrl = "/assets/typespec/pkgs"
 const packages = [
   "typespec-aaz",
   "@typespec/compiler",
+  "@typespec/events",
   "@typespec/http",
   "@typespec/rest",
   "@typespec/openapi",
@@ -40,7 +41,9 @@ const packages = [
   "@typespec/openapi3",
   "@typespec/json-schema",
   "@typespec/protobuf",
+  "@typespec/sse",
   "@typespec/streams",
+  "@typespec/xml",
   "@azure-tools/typespec-autorest",
   "@azure-tools/typespec-azure-core",
   "@azure-tools/typespec-client-generator-core",
