@@ -158,8 +158,11 @@ class CMDArgBuilder:
                 unwrapped_ref_arg = self._ref_arg.get_unwrapped()
                 assert unwrapped_ref_arg is not None
                 sub_ref_args = unwrapped_ref_arg.args
-            else:
+            # sometime this will happen for example convert from string arg or any type arg to object arg
+            elif hasattr(self._ref_arg, 'args'):
                 sub_ref_args = self._ref_arg.args
+            else:
+                sub_ref_args = self._sub_ref_args
         else:
             sub_ref_args = self._sub_ref_args
 
@@ -250,7 +253,7 @@ class CMDArgBuilder:
 
     def get_additional_props(self):
         if hasattr(self.schema, "additional_props") and self.schema.additional_props:
-            sub_ref_arg = self._ref_arg.additional_props if self._ref_arg else None
+            sub_ref_arg = self._ref_arg.additional_props if self._ref_arg and hasattr(self._ref_arg, 'additional_props') else None
             sub_builder = self.get_sub_builder(schema=self.schema.additional_props, ref_arg=sub_ref_arg)
             return sub_builder._build_arg_base()
         else:

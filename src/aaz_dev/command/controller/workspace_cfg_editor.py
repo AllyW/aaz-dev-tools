@@ -218,8 +218,6 @@ class WorkspaceCfgEditor(CfgReader, ArgumentUpdateMixin):
                         arg_group = plus_cfg_editor._filter_args_in_arg_group(arg_group, new_args, copy=True)
                         if arg_group:
                             plus_resources_arg_groups.append(arg_group)
-                    
-
             if method in plus_operations_by_method:
                 assert len(plus_operations_by_method[method]) == len(plus_cfg_editor.resources)
 
@@ -248,6 +246,16 @@ class WorkspaceCfgEditor(CfgReader, ArgumentUpdateMixin):
                     plus_operation.http.request.header = operation.http.request.header
                     plus_operation.http.request.body = operation.http.request.body
                     plus_operation.http.responses = operation.http.responses
+                    if plus_operation.http.request.method.lower() == 'get' and plus_operation.http.request.query.params:
+                        # the get method in generate update command will ignore the optional query params if it's not exist in the put or patch operations.
+                        # here we need to exclude them if those query params has args in the main command
+                        params = []
+                        for param in plus_operation.http.request.query.params:
+                            arg, _ = main_editor.find_arg_in_command_by_var(main_command, arg_var=param.arg)
+                            if not param.required and not arg:
+                                continue
+                            params.append(param)
+                        plus_operation.http.request.query.params = params
                     plus_operation = plus_operation.__class__(plus_operation.to_primitive())
                     plus_operations.append(plus_operation)
                     if operation_id not in plus_op_required_args:
