@@ -6,11 +6,11 @@ import { AAZEmitterContext, AAZOperationEmitterContext, AAZSchemaEmitterContext 
 import { resolveOperationId } from "./utils.js";
 import { TypeSpecPathItem } from "./model/path_item.js";
 import { CMDHttpOperation } from "./model/operation.js";
-import { DiagnosticTarget, Enum, EnumMember, Model, ModelProperty, Namespace, Program, Scalar, TwoLevelMap, Type, Union, Value, getDiscriminator, getDoc, getEncode, getFormat, getMaxItems, getMaxLength, getMaxValue, getMaxValueExclusive, getMinItems, getMinLength, getMinValue, getMinValueExclusive, getPattern, getProjectedName, getProperty, isArrayModelType, isNeverType, isNullType, isRecordModelType, isService, isTemplateDeclaration, isVoidType, resolveEncodedName } from "@typespec/compiler";
+import { DiagnosticTarget, Enum, EnumMember, Model, ModelProperty, Namespace, Program, Scalar, serializeValueAsJson, TwoLevelMap, Type, Union, Value, getDiscriminator, getDoc, getEncode, getFormat, getMaxItems, getMaxLength, getMaxValue, getMaxValueExclusive, getMinItems, getMinLength, getMinValue, getMinValueExclusive, getPattern, getProjectedName, getProperty, isArrayModelType, isNeverType, isNullType, isRecordModelType, isService, isTemplateDeclaration, isVoidType, resolveEncodedName, IntrinsicType } from "@typespec/compiler";
 import { LroMetadata, PagedResultMetadata, UnionEnum, getArmResourceIdentifierConfig, getLroMetadata, getPagedResult, getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import { XmsPageable } from "./model/x_ms_pageable.js";
 import { CMDHttpRequest, CMDHttpResponse } from "./model/http.js";
-import { CMDArraySchemaBase, CMDClsSchema, CMDClsSchemaBase, CMDObjectSchema, CMDObjectSchemaBase, CMDSchema, CMDSchemaBase, CMDStringSchema, CMDStringSchemaBase, CMDIntegerSchemaBase, Ref, ClsType, ArrayType, CMDObjectSchemaDiscriminator, CMDByteSchemaBase, CMDInteger32SchemaBase, CMDInteger64SchemaBase, CMDFloatSchemaBase, CMDFloat64SchemaBase, CMDFloat32SchemaBase, CMDUuidSchemaBase, CMDPasswordSchemaBase, CMDResourceIdSchemaBase, CMDDateSchemaBase, CMDDateTimeSchemaBase, CMDDurationSchemaBase, CMDResourceLocationSchema, CMDIdentityObjectSchemaBase, CMDBooleanSchemaBase} from "./model/schema.js";
+import { CMDArraySchemaBase, CMDClsSchema, CMDClsSchemaBase, CMDObjectSchema, CMDObjectSchemaBase, CMDSchema, CMDSchemaBase, CMDStringSchema, CMDStringSchemaBase, CMDIntegerSchemaBase, Ref, ClsType, ArrayType, CMDObjectSchemaDiscriminator, CMDByteSchemaBase, CMDInteger32SchemaBase, CMDInteger64SchemaBase, CMDFloatSchemaBase, CMDFloat64SchemaBase, CMDFloat32SchemaBase, CMDUuidSchemaBase, CMDPasswordSchemaBase, CMDResourceIdSchemaBase, CMDDateSchemaBase, CMDDateTimeSchemaBase, CMDDurationSchemaBase, CMDResourceLocationSchema, CMDIdentityObjectSchemaBase, CMDBooleanSchemaBase, CMDAnyTypeSchemaBase, CMDBinarySchema} from "./model/schema.js";
 import { reportDiagnostic } from "./lib.js";
 import {
   getExtensions,
@@ -87,7 +87,7 @@ export function retrieveAAZOperation(context: AAZEmitterContext, operation: Http
     pathItem[verb]!.update = convert2CMDOperation(opContext, operation);
     processPendingSchemas(opContext, verbVisibility, "update");
   } else if (verb === 'patch') {
-    opContext.visibility = Visibility.Update;
+    opContext.visibility = verbVisibility;
     pathItem[verb]!.update = convert2CMDOperation(opContext, operation);
     processPendingSchemas(opContext, verbVisibility, "update");
   } else {
@@ -267,13 +267,9 @@ function extractHttpRequest(context: AAZOperationEmitterContext, operation: Http
     if (body.bodyKind === "multipart") {
       throw new Error("NotImplementedError: Multipart form data payloads are not supported.");
     }
-    if (isBinaryPayload(body.type, consumes)) {
-      throw new Error("NotImplementedError: Binary payloads are not supported.");
-    }
     if (consumes.includes("multipart/form-data")) {
       throw new Error("NotImplementedError: Multipart form data payloads are not supported.");
     }
-
     let schema: CMDSchema | undefined;
     if (body.property) {
       context.tracer.trace("RetrieveBody", context.visibility.toString());
@@ -302,6 +298,12 @@ function extractHttpRequest(context: AAZOperationEmitterContext, operation: Http
           ...schema,
           clientFlatten: true,
         } as CMDObjectSchema;
+      }
+      if (isBinaryPayload(body.type, consumes)) {
+        schema = {
+          ...schema,
+          type: "binary"
+        } as CMDBinarySchema
       }
       request.body = {
         json: {
@@ -514,7 +516,7 @@ function convert2CMDSchema(context: AAZSchemaEmitterContext, param: ModelPropert
   let schema;
   switch (param.type.kind) {
     case "Intrinsic":
-      schema = undefined;
+      schema = convert2CMDSchemaBase(context, param.type);
       break;
     case "Model":
       schema = convert2CMDSchemaBase(context, param.type as Model);
@@ -554,7 +556,7 @@ function convert2CMDSchema(context: AAZSchemaEmitterContext, param: ModelPropert
 
     if (param.defaultValue) {
       schema.default = {
-        value: getDefaultValue(context, param.defaultValue),
+        value: getDefaultValue(context, param.defaultValue, param),
       }
     }
   }
@@ -562,6 +564,10 @@ function convert2CMDSchema(context: AAZSchemaEmitterContext, param: ModelPropert
     schema = {
       ...schema,
       ...applySchemaFormat(context, param, schema as CMDSchemaBase)
+    }
+    schema = {
+      ...schema,
+      ...applyEncoding(context, param, schema)
     }
     schema = {
       ...schema,
@@ -578,7 +584,7 @@ function convert2CMDSchemaBase(context: AAZSchemaEmitterContext, type: Type): CM
   let schema;
   switch (type.kind) {
     case "Intrinsic":
-      schema = undefined;
+      schema = convertIntrinsic2CMDSchemaBase(context, type);
       break;
     case "Scalar":
       schema = convertScalar2CMDSchemaBase(context, type as Scalar);
@@ -614,6 +620,7 @@ function convert2CMDSchemaBase(context: AAZSchemaEmitterContext, type: Type): CM
   }
   if (schema) {
     schema = applySchemaFormat(context, type, schema);
+    schema = applyEncoding(context, type, schema);
     schema = applyExtensionsDecorators(context, type, schema);
   }
 
@@ -740,8 +747,6 @@ function convertModel2CMDObjectSchemaBase(context: AAZSchemaEmitterContext, mode
       properties[propertyName] = discriminatorProperty;
     }
 
-    const discProperty = properties[propertyName] as CMDStringSchema;
-
     const derivedModels = payloadModel.derivedModels.filter(includeDerivedModel);
     for (const child of derivedModels) {
       const childDiscriminatorValue = getDiscriminatorInfo(context, child);
@@ -750,12 +755,6 @@ function convertModel2CMDObjectSchemaBase(context: AAZSchemaEmitterContext, mode
         if (disc) {
           object.discriminators ??= [];
           object.discriminators.push(disc);
-          discProperty.enum ??= {
-            items: [],
-          };
-          discProperty.enum.items.push({
-            value: childDiscriminatorValue.value,
-          });
         }
       }
     }
@@ -766,7 +765,7 @@ function convertModel2CMDObjectSchemaBase(context: AAZSchemaEmitterContext, mode
       item: convert2CMDSchemaBase({
         ...context,
         supportClsSchema: true,
-      }, payloadModel.indexer.value),
+      }, payloadModel.indexer.value)
     }
   }
 
@@ -840,6 +839,9 @@ function convertModel2CMDObjectDiscriminator(context: AAZSchemaEmitterContext, m
     }
 
     const jsonName = getJsonName(context, prop);
+    if (jsonName === discriminatorInfo.propertyName) {
+      continue;
+    }
     let schema = convert2CMDSchema({
       ...context,
       supportClsSchema: true,
@@ -1111,6 +1113,16 @@ function convertUnion2CMDSchemaBase(context: AAZSchemaEmitterContext, union: Uni
   return schema;
 }
 
+function convertIntrinsic2CMDSchemaBase(context: AAZSchemaEmitterContext, type: IntrinsicType): CMDAnyTypeSchemaBase | undefined {
+  let schema;
+  if (type.name === "unknown") {
+    schema = {
+      type: "any"
+    } as CMDAnyTypeSchemaBase
+  }
+  return schema;
+}
+
 function convertUnionEnum2CMDSchemaBase(context: AAZSchemaEmitterContext, union: Union, e: UnionEnum): CMDStringSchemaBase | CMDIntegerSchemaBase | undefined {
   let schema;
   if (e.kind === 'number') {
@@ -1184,7 +1196,7 @@ function convertEnum2CMDSchemaBase(context: AAZSchemaEmitterContext, e: Enum): C
 }
 
 function shouldClientFlatten(context: AAZSchemaEmitterContext, target: ModelProperty): boolean {
-  return !!(shouldFlattenProperty(context.sdkContext, target) || getExtensions(context.program, target).get("x-ms-client-flatten"));
+  return !!(shouldFlattenProperty(context.tcgcSdkContext, target) || getExtensions(context.program, target).get("x-ms-client-flatten"));
 }
 
 function includeDerivedModel(model: Model): boolean {
@@ -1676,6 +1688,24 @@ function emitArrayFormat(context: AAZSchemaEmitterContext, type: Model, targetFo
 
 // TODO: add emitResourceIdFormat
 
+function applyEncoding(
+  context: AAZSchemaEmitterContext,
+  type:Type,
+  schema: CMDSchemaBase
+): CMDSchemaBase {
+if (type.kind !== "Scalar" && type.kind !== "ModelProperty") {
+  return schema;
+}
+  const encodeData = getEncode(context.program, type);
+  if (encodeData !== undefined) {
+      schema = {
+        ...schema,
+        ...convertScalar2CMDSchemaBase(context, encodeData.type)
+      };
+  }
+  return schema;
+}
+
 // apply extension decorators
 function applyExtensionsDecorators(
   context: AAZSchemaEmitterContext,
@@ -1913,25 +1943,10 @@ function getClsDefinitionModel(schema: CMDClsSchemaBase): CMDObjectSchemaBase | 
   return schema.type.pendingSchema.schema!
 }
 
-function getDefaultValue(content: AAZSchemaEmitterContext, defaultType: Value): unknown {
-  switch (defaultType.valueKind) {
-    case "StringValue":
-      return defaultType.value;
-    case "NumericValue":
-      return defaultType.value.asNumber() ?? undefined;
-    case "BooleanValue":
-      return defaultType.value;
-    case "ArrayValue":
-      return defaultType.values.map((x) => getDefaultValue(content, x));
-    case "NullValue":
-      return null;
-    case "EnumValue":
-      return defaultType.value.value ?? defaultType.value.name;
-    default:
-      reportDiagnostic(content.program, {
-        code: "invalid-default",
-        format: { type: defaultType.valueKind },
-        target: defaultType,
-      });
-  }
+function getDefaultValue(  
+  context: AAZSchemaEmitterContext,
+  defaultType: Value,
+  modelProperty: ModelProperty,
+): any {
+return serializeValueAsJson(context.program, defaultType, modelProperty);
 }

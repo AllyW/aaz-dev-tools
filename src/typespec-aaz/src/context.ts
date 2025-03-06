@@ -1,4 +1,4 @@
-import { SdkContext } from "@azure-tools/typespec-client-generator-core";
+import { TCGCContext } from "@azure-tools/typespec-client-generator-core";
 import { Program, Service, Tracer, TwoLevelMap, Type, TypeNameOptions } from "@typespec/compiler";
 import { MetadataInfo, Visibility } from "@typespec/http";
 import { PendingSchema, Ref } from "./model/schema.js";
@@ -7,7 +7,7 @@ import { PendingSchema, Ref } from "./model/schema.js";
 export interface AAZEmitterContext {
     readonly program: Program;
     readonly service: Service;
-    readonly sdkContext: SdkContext;
+    readonly tcgcSdkContext: TCGCContext;
     readonly apiVersion: string;
     tracer: Tracer
 }

@@ -60,7 +60,7 @@ export function getResourcePath(program: Program, operation: HttpOperation) {
 
 function getAutorestClientName(context: AAZEmitterContext, type: Type & { name: string }) {
   const viaProjection = getProjectedName(context.program, type, "client");
-  const clientName = getClientNameOverride(context.sdkContext, type);
+  const clientName = getClientNameOverride(context.tcgcSdkContext, type);
   return clientName ?? viaProjection ?? type.name;
 }
 
