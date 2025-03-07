@@ -20,6 +20,7 @@ export async function createBrowserHost(
 ): Promise<BrowserHost> {
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
+  const specFs = new Map<string, Number>();
 
   const libraries: Record<string, TspLibrary> = {};
   for (const libName of libsToLoad) {
@@ -37,16 +38,17 @@ export async function createBrowserHost(
     for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.jsSourceFiles)) {
       addJsImport(resolveVirtualPath('node_modules', libName, key), value);
     }
-    virtualFs.set(
-      resolveVirtualPath('package.json'),
-      JSON.stringify({
-        name: "aaz-host",
-        dependencies: Object.fromEntries(
-          Object.values(libraries).map((x) => [x.name, x.packageJson.version])
-        ),
-      })
-    );
   }
+
+  virtualFs.set(
+    resolveVirtualPath('package.json'),
+    JSON.stringify({
+      name: "aaz-host",
+      dependencies: Object.fromEntries(
+        Object.values(libraries).map((x) => [x.name, x.packageJson.version])
+      ),
+    })
+  );
 
   function addJsImport(path: string, value: any) {
     virtualFs.set(path, "");
@@ -155,9 +157,43 @@ export async function createBrowserHost(
       }
 
       const spec_path = path.replace(rootPath, "");
+
+      if (specFs.has(spec_path)) {
+        const statusCode = specFs.get(spec_path);
+        // console.log("spec_path: ", spec_path, " statusCode: ", statusCode);
+        if (statusCode === 1) {
+          const e = new Error(`File ${path} not found.`);
+          (e as any).code = "ENOENT";
+          throw e;
+        } else if (statusCode === 2) {
+          return {
+            isDirectory() {
+              return false;
+            },
+            isFile() {
+              return true;
+            }
+          }
+        } else if(statusCode === 3) {
+          return {
+            isDirectory() {
+              return true;
+            },
+            isFile() {
+              return false;
+            },
+          };
+        } else {
+          const e = new Error(`Illegal spec path ${spec_path} status ${statusCode}.`);
+          (e as any).code = "ENOENT";
+          throw e;
+        } 
+      }
       if (!spec_path.includes("node_modules")) {
+        // console.log("spec_path axioed: ", spec_path);
         const res = await axios.get(`/Swagger/Specs/Stat${spec_path}`);
         if (res.data.error) {
+          specFs.set(spec_path, 1);
           const e = new Error(`File ${path} not found.`);
           (e as any).code = "ENOENT";
           throw e;
@@ -166,6 +202,9 @@ export async function createBrowserHost(
           // cache the file in virtualFs
           const content = await axios.get(`/Swagger/Specs/Files${spec_path}`);
           virtualFs.set(path, content.data);
+          specFs.set(spec_path, 2);
+        } else {
+          specFs.set(spec_path, 3);
         }
         return {
           isDirectory() {
@@ -176,6 +215,7 @@ export async function createBrowserHost(
           }
         }
       }
+      specFs.set(spec_path, 1);
       const e = new Error(`File ${path} not found.`);
       (e as any).code = "ENOENT";
       throw e;
