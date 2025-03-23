@@ -3,7 +3,7 @@ import {
   isAzureResource,
 } from "@azure-tools/typespec-azure-resource-manager";
 import { AAZEmitterContext, AAZOperationEmitterContext, AAZSchemaEmitterContext } from "./context.js";
-import { resolveOperationId } from "./utils.js";
+import { resolveOperationId, toCamelCase } from "./utils.js";
 import { TypeSpecPathItem } from "./model/path_item.js";
 import { CMDHttpOperation } from "./model/operation.js";
 import { DiagnosticTarget, Enum, EnumMember, Model, ModelProperty, Namespace, Program, Scalar, serializeValueAsJson, TwoLevelMap, Type, Union, Value, getDiscriminator, getDoc, getEncode, getFormat, getMaxItems, getMaxLength, getMaxValue, getMaxValueExclusive, getMinItems, getMinLength, getMinValue, getMinValueExclusive, getPattern, getProjectedName, getProperty, isArrayModelType, isNeverType, isNullType, isRecordModelType, isService, isTemplateDeclaration, isVoidType, resolveEncodedName, IntrinsicType } from "@typespec/compiler";
@@ -87,7 +87,7 @@ export function retrieveAAZOperation(context: AAZEmitterContext, operation: Http
     pathItem[verb]!.update = convert2CMDOperation(opContext, operation);
     processPendingSchemas(opContext, verbVisibility, "update");
   } else if (verb === 'patch') {
-    opContext.visibility = verbVisibility;
+    opContext.visibility = Visibility.Update;
     pathItem[verb]!.update = convert2CMDOperation(opContext, operation);
     processPendingSchemas(opContext, verbVisibility, "update");
   } else {
@@ -1299,17 +1299,18 @@ function processPendingSchemas(context: AAZOperationEmitterContext, verbVisibili
       if (pending.count < 2) {
         pending.ref!.value = undefined;
       } else {
-        let name = getOpenAPITypeName(context.program, type, context.typeNameOptions);
+        const name = getOpenAPITypeName(context.program, type, context.typeNameOptions);
+        let ref_name = toCamelCase(name.replace(/\./g, ' '))
         if (group.size > 1 && visibility !== Visibility.Read) {
           // TODO: handle item
-          name += getVisibilitySuffix(verbVisibility, Visibility.Read);
+          ref_name += getVisibilitySuffix(verbVisibility, Visibility.Read);
         }
         if (Visibility.Read !== visibility) {
-          name += '_' + suffix;
+          ref_name += '_' + suffix;
         } else {
-          name += '_read';
+          ref_name += '_read';
         }
-        pending.ref!.value = name;
+        pending.ref!.value = ref_name;
       }
     }
   }
