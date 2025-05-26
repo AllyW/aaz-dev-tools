@@ -195,6 +195,7 @@ class CMDArgBuilder:
                 if prop.name in discriminator_mapping:
                     # If discriminators are not flattened then prop value can be associate with discriminator arguments
                     assert hasattr(prop, 'enum')
+                    prop.arg = None
                     for item in prop.enum.items:
                         if item.value in discriminator_mapping[prop.name]:
                             item.arg = discriminator_mapping[prop.name][item.value][0]
