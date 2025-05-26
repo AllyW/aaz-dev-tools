@@ -174,12 +174,11 @@ class CMDArgBuilder:
             for disc in self.schema.discriminators:
                 sub_builder = self.get_sub_builder(schema=disc, ref_args=sub_ref_args)
                 results = sub_builder.get_args()
-                sub_args.extend(results)
                 if results and not self._flatten_discriminators:
                     assert len(results) == 1
                     if disc.property not in discriminator_mapping:
                         discriminator_mapping[disc.property] = {}
-                    discriminator_mapping[disc.property][disc.value] = results[0].var
+                    discriminator_mapping[disc.property][disc.value] = (results[0].var, results[0])
 
         if self.schema.props:
             removed = []  # remove useless schema
@@ -188,16 +187,20 @@ class CMDArgBuilder:
                         prop.name in ['type', 'userAssignedIdentities']:
                     removed.append(prop)
                     continue
-
+                sub_builder = self.get_sub_builder(schema=prop, ref_args=sub_ref_args)
+                sub_arg = sub_builder.get_args()
+                left_sub_arg = list(filter(lambda targ: not getattr(targ, "hide", False), sub_arg))
+                if not left_sub_arg:
+                    continue
                 if prop.name in discriminator_mapping:
                     # If discriminators are not flattened then prop value can be associate with discriminator arguments
                     assert hasattr(prop, 'enum')
                     for item in prop.enum.items:
                         if item.value in discriminator_mapping[prop.name]:
-                            item.arg = discriminator_mapping[prop.name][item.value]
-                    continue
-                sub_builder = self.get_sub_builder(schema=prop, ref_args=sub_ref_args)
-                sub_args.extend(sub_builder.get_args())
+                            item.arg = discriminator_mapping[prop.name][item.value][0]
+                            sub_args.append(discriminator_mapping[prop.name][item.value][1])
+                else:
+                    sub_args.extend(left_sub_arg)
 
             self.schema.props = [prop for prop in self.schema.props if prop not in removed]
             if isinstance(self.schema, CMDIdentityObjectSchema) and (not self._is_update_action or self.schema.action):
@@ -342,6 +345,10 @@ class CMDArgBuilder:
         if getattr(self.schema, 'name', None) in ['userAssignedIdentities', 'type'] and self._parent and \
                 isinstance(self._parent.schema, CMDIdentityObjectSchema):
             return True
+
+        if getattr(self.schema, "discriminators", None):
+            if getattr(self.schema, "props", None) is None:
+                return True
 
         return False
 

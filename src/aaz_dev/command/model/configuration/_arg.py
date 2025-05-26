@@ -749,7 +749,7 @@ class CMDObjectArgBase(CMDArgBase):
             raise
         arg.args = builder.get_sub_args()
         arg.additional_props = builder.get_additional_props()
-        if not arg.args and not arg.additional_props:
+        if not arg.args and not arg.additional_props and getattr(builder.schema, "discriminators", None) is None:
             # when object arg don't have args or additional_props, set its blank value as empty dict
             arg.blank = CMDArgBlank()
             arg.blank.value = {}
